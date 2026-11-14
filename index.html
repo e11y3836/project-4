@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pink petal api dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <!-- Verify: the page loads with the News + Weather pair selected and no error banner; each pair button fills both panels; the preview allows 20 API calls per run, so press Refresh to start a new run. -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="app-title">۶ৎ api showcase</h1>
+                <p class="app-subtitle">(˶ᵔ ᵕ ᵔ˶) a little corner of the internet, blooming with live data</p>
+                <p class="petal-divider" aria-hidden="true">─────୨ৎ───</p>
+                <pre class="header-dots" aria-hidden="true">⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀
+⢇⠈⠑⠄⣀⠀⠀⠀⠀⠀⠀⠀⣀⠠⠊⠁⡸
+⢨⡑⠀⠀⠀⢉⡐⢆⠀⡠⢂⡉⠀⠀⠀⢊⡅
+⠀⠘⠭⢀⡄⢣⡤⠜⠀⠡⢤⡞⢠⡀⠭⠃⠀
+⠀⠀⠀⠀⠉⠁⠀⠀⠀⠀⠀⠈⠉⠀⠀⠀⠀</pre>
+            </div>
+            <div class="header-controls">
+                <button id="themeToggle" class="btn-icon" title="toggle theme" aria-label="toggle theme">۶ৎ</button>
+                <button id="refreshBtn" class="btn-icon" title="refresh data" aria-label="refresh data">(ᵔ◡ᵔ)</button>
+            </div>
+        </header>
+
+        <!-- API Selection Panel -->
+        <section class="api-selection">
+            <h2>choose your api combination</h2>
+            <div class="api-options">
+                <button class="api-option active" data-combo="news-weather">
+                    <span class="api-icon">૮₍ ˶ᵔ ᵕ ᵔ˶ ₎ა</span>
+                    <span class="api-name">news + weather</span>
+                </button>
+                <button class="api-option" data-combo="phones-laptops">
+                    <span class="api-icon">(˶ᵔ ᵕ ᵔ˶)</span>
+                    <span class="api-name">phones + laptops</span>
+                </button>
+                <button class="api-option" data-combo="recipe-snacks">
+                    <span class="api-icon">(๑˃ᴗ˂)ﻭ</span>
+                    <span class="api-name">recipes + snacks</span>
+                </button>
+                <button class="api-option" data-combo="people-quotes">
+                    <span class="api-icon">૮꒰ ˶• ༝ •˶꒱ა</span>
+                    <span class="api-name">people + quotes</span>
+                </button>
+            </div>
+            <p class="budget-note">the preview allows 20 api calls per run. if a panel shows an error about calls, press refresh in the preview to start a new run.</p>
+        </section>
+
+        <!-- Controls Panel -->
+        <section class="controls-panel">
+            <div class="search-section">
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="search across all data..."
+                    class="search-input"
+                >
+                <button id="searchBtn" class="btn-primary">search</button>
+                <button id="clearSearchBtn" class="btn-secondary">clear</button>
+            </div>
+
+            <div class="filter-section">
+                <select id="filterCategory" class="filter-select">
+                    <option value="all">all categories</option>
+                </select>
+
+                <select id="sortBy" class="filter-select">
+                    <option value="date-desc">newest first</option>
+                    <option value="date-asc">oldest first</option>
+                    <option value="name-asc">name a-z</option>
+                    <option value="name-desc">name z-a</option>
+                    <option value="relevance">most relevant</option>
+                </select>
+
+                <div class="view-toggle">
+                    <button id="gridViewBtn" class="view-btn active" title="grid view">⊞</button>
+                    <button id="listViewBtn" class="view-btn" title="list view">☰</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Area (Dual Panel Layout) -->
+        <main class="main-content">
+            <!-- Primary API Panel (Left) -->
+            <section class="api-panel primary-panel">
+                <div class="panel-header">
+                    <h2 id="primaryApiTitle">hacker news</h2>
+                    <span class="item-count" id="primaryCount">0 items</span>
+                </div>
+
+                <!-- Loading State -->
+                <div id="primaryLoading" class="loading-state hidden">
+                    <div class="spinner"></div>
+                    <p>loading data...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="primaryError" class="error-state hidden">
+                    <div class="error-icon">(｡•́︿•̀｡)</div>
+                    <h3>failed to load data</h3>
+                    <p class="error-message"></p>
+                    <button class="btn-retry">try again</button>
+                </div>
+
+                <!-- Data Grid -->
+                <div id="primaryGrid" class="data-grid">
+                    <!-- Items will be dynamically inserted here -->
+                </div>
+
+                <!-- Pagination -->
+                <div id="primaryPagination" class="pagination hidden">
+                    <button id="primaryPrevBtn" class="btn-page" disabled>← previous</button>
+                    <span class="page-info" id="primaryPageInfo">page 1 of 1</span>
+                    <button id="primaryNextBtn" class="btn-page">next →</button>
+                </div>
+            </section>
+
+            <!-- Secondary API Panel (Right) -->
+            <section class="api-panel secondary-panel">
+                <div class="panel-header">
+                    <h2 id="secondaryApiTitle">weather (wttr.in)</h2>
+                    <span class="item-count" id="secondaryCount">0 items</span>
+                </div>
+
+                <!-- Loading State -->
+                <div id="secondaryLoading" class="loading-state hidden">
+                    <div class="spinner"></div>
+                    <p>loading data...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="secondaryError" class="error-state hidden">
+                    <div class="error-icon">(｡•́︿•̀｡)</div>
+                    <h3>failed to load data</h3>
+                    <p class="error-message"></p>
+                    <button class="btn-retry">try again</button>
+                </div>
+
+                <!-- Data Grid -->
+                <div id="secondaryGrid" class="data-grid">
+                    <!-- Items will be dynamically inserted here -->
+                </div>
+
+                <!-- Pagination -->
+                <div id="secondaryPagination" class="pagination hidden">
+                    <button id="secondaryPrevBtn" class="btn-page" disabled>← previous</button>
+                    <span class="page-info" id="secondaryPageInfo">page 1 of 1</span>
+                    <button id="secondaryNextBtn" class="btn-page">next →</button>
+                </div>
+            </section>
+        </main>
+
+        <section class="side-panels" aria-label="favorites and mini game">
+            <aside class="favorites-sidebar">
+                <div class="sidebar-header">
+                    <h3>۶ৎ favorites</h3>
+                    <button id="clearFavoritesBtn" class="btn-clear">clear all</button>
+                </div>
+                <div id="favoritesList" class="favorites-list">
+                    <p class="empty-state">(˶ᵔ ᵕ ᵔ˶) no favorites yet. tap ۶ৎ on an item to save it!</p>
+                </div>
+            </aside>
+
+            <aside class="petal-game" aria-labelledby="petalGameTitle">
+                <div class="sidebar-header">
+                    <h3 id="petalGameTitle">✿ petal catch</h3>
+                    <span class="game-mascot" aria-hidden="true">(˶ᵔ ᵕ ᵔ˶)</span>
+                </div>
+                <p class="game-instructions">catch the wandering petal before time runs out!</p>
+                <div class="game-stats">
+                    <span>petals: <strong id="petalScore" aria-live="polite">0</strong></span>
+                    <span>time: <strong id="petalTime">15</strong>s</span>
+                    <span>best: <strong id="petalHighScore">0</strong></span>
+                </div>
+                <div id="petalBoard" class="petal-board" role="group" aria-label="petal catching board">
+                    <button class="petal-spot" type="button" aria-label="petal spot 1" disabled>·</button>
+                    <button class="petal-spot" type="button" aria-label="petal spot 2" disabled>·</button>
+                    <button class="petal-spot" type="button" aria-label="petal spot 3" disabled>·</button>
+                    <button class="petal-spot" type="button" aria-label="petal spot 4" disabled>·</button>
+                    <button class="petal-spot" type="button" aria-label="petal spot 5" disabled>·</button>
+                    <button class="petal-spot" type="button" aria-label="petal spot 6" disabled>·</button>
+                    <button class="petal-spot" type="button" aria-label="petal spot 7" disabled>·</button>
+                    <button class="petal-spot" type="button" aria-label="petal spot 8" disabled>·</button>
+                    <button class="petal-spot" type="button" aria-label="petal spot 9" disabled>·</button>
+                </div>
+                <p id="petalGameStatus" class="game-status" aria-live="polite">ready when you are (｡ᵕ｡)</p>
+                <button id="startPetalGame" class="btn-primary game-start" type="button">start game</button>
+            </aside>
+        </section>
+
+        <!-- Detail Modal -->
+        <div id="detailModal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <button class="modal-close">✕</button>
+                <div id="detailContent" class="detail-body">
+                    <!-- Detailed item information will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Footer -->
+        <footer class="stats-footer">
+            <div class="stat-card">
+                <span class="stat-value" id="totalItemsViewed">0</span>
+                <span class="stat-label">items viewed</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="totalSearches">0</span>
+                <span class="stat-label">searches</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="totalFavorites">0</span>
+                <span class="stat-label">favorites</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="cacheHits">0</span>
+                <span class="stat-label">cache hits</span>
+            </div>
+        </footer>
+    </div>
+
+</body>
+</html>
